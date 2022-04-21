@@ -19,15 +19,15 @@ public class SessionManager {
     /**
      * 세션 생성
      */
+
     public void createSession(Object value, HttpServletResponse response) {
 
-        // 세션Id생성
+        //세션 id생성
         String sessionId = UUID.randomUUID().toString();
         sessionStore.put(sessionId, value);
 
-        //쿠키생성
         Cookie mySessionCookie = new Cookie(SESSION_COOKIE_NAME, sessionId);
-        response.addCookie(mySessionCookie);
+
     }
 
     /**
@@ -44,13 +44,13 @@ public class SessionManager {
     }
 
     /**
-     * 세션만료
+     * 만료
      */
 
-    public void expire(HttpServletRequest request) {
-        Cookie sessionCookie = findCookie(request, SESSION_COOKIE_NAME);
-        if (sessionCookie != null) {
-            sessionStore.remove(sessionCookie.getValue());
+    public void expire(HttpServletRequest request){
+        Cookie cookie = findCookie(request, SESSION_COOKIE_NAME);
+        if (cookie != null) {
+            sessionStore.remove(cookie.getValue());
         }
     }
 
@@ -59,6 +59,7 @@ public class SessionManager {
         if (cookies == null) {
             return null;
         }
+
         return Arrays.stream(cookies)
                 .filter(cookie -> cookie.getName().equals(cookieName))
                 .findAny()
