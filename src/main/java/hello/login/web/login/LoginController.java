@@ -10,6 +10,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
@@ -27,7 +28,7 @@ public class LoginController {
         return "login/loginForm";
     }
 
-    @PostMapping("/login")
+    //@PostMapping("/login")
     public String login(@Valid @ModelAttribute LoginForm loginForm, BindingResult bindingResult,
                         HttpServletResponse response) {
         if (bindingResult.hasErrors()) {
@@ -49,4 +50,31 @@ public class LoginController {
 
         return "redirect:/";
     }
+
+
+    @PostMapping("/login")
+    public String loginV4(@Valid @ModelAttribute LoginForm loginForm, BindingResult bindingResult,
+                        @RequestParam(defaultValue = "/")String redirectURL,
+                        HttpServletResponse response) {
+        if (bindingResult.hasErrors()) {
+            return "login/loginForm";
+        }
+
+        Member loginMember = loginService.login(loginForm.getLoginId(), loginForm.getPassword());
+
+        if (loginMember == null){
+            bindingResult.reject("loginFail", "아이디 또는 비밀번호가 맞지 않습니다.");
+            return "login/loginForm";
+        }
+
+        //로그인 성공처리
+
+        //쿠키에 시간 정보를 주지 않으면 세션쿠키
+        Cookie idCookie = new Cookie("memberId", String.valueOf(loginMember.getId()));
+        response.addCookie(idCookie);
+
+        return "redirect:" + redirectURL;
+    }
+
+
 }
